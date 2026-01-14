@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e1dcfeb6446e1049a2bc5f6060fd8c6, type: 3}
+  m_Name: weaponData
+  m_EditorClassIdentifier: 
+  fistDamage: 50
+  fistKnockbackForce: 25
+  fistAmmo: 100
+  fistNoAmmoDamage: 5
+  pistolAmmo: 100
+  pistolRange: 100
+  pistolDamage: 10
+  fodderDamage: 5
+  fodderKnockbackForce: 5
+  fodderSpeed: 25
