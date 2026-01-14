@@ -1,4 +1,4 @@
-# Project Title
+# Gemstone Code
 
 This is all code/software currently being utilized by team RUBIX, a gemstone research team.
 
