@@ -4,7 +4,8 @@ Current code used to gather data for designing inflatable cubesat. Gathers data 
 
 ## Getting Started
 
-Simply download matlab, and install all files. Initially run the ModelRun_Main. This file can be altered to change results. More info on how to handle altering data inputs and outputs can be found wihtin code files.
+Simply download matlab, and install all files. Initially run the ModelRun_Main. This file can be altered to change results. More info on how to handle altering data inputs and outputs can be found wihtin code files. 
+Preloaded with Cube shape.
 
 ### Prerequisites
 
