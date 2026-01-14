@@ -4,7 +4,7 @@ This is all code/software currently being utilized by team RUBIX, a gemstone res
 
 ## Getting Started
 
-Simply download the code files, including those in CubeModels. Load these through MATLAB, simply run the ModelRun_Main.m file in Matlab.
+Look at README in each individual folder for use instruction
 
 ### Prerequisites
 
