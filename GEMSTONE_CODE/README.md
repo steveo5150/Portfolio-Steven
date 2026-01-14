@@ -8,7 +8,7 @@ Look at README in each individual folder for use instruction
 
 ### Prerequisites
 
-Matlab
+Listed in each individual README file, no prerequisite for entire file.
 
 ## Resources
 
