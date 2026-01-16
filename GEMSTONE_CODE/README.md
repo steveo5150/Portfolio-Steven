@@ -12,4 +12,4 @@ Listed in each individual README file, no prerequisite for entire file.
 
 ## Resources
 
-* [VECTOR]([https://swx-trec.com/vector/docs]) - Used for atmopsheric model data and calculations
+* [VECTOR] ([https://swx-trec.com/vector/docs]) - Used for atmopsheric model data and calculations
