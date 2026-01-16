@@ -11,5 +11,9 @@ Preloaded with Cube shape.
 
 matlab
 
+## Resources
+
+* [VECTOR] ([https://swx-trec.com/vector/docs]) - Used for atmopsheric model data and calculations
+
 ## IMPORTANT DETAILS
 currently the code works to reduce run time after the initial run, creates files to be read opposed to altering calculations each time while still reading a file. This sacrifices space and thus files should be deleted after use. Such files will currently be located in CUBEMODELS folder, any files with a suffix of numbers can be deleted
