@@ -1,0 +1,184 @@
+%%%%%%%%%TODO:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%add comments, turn into function, change to run with stored data
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% Written by Steven G. Lewis, 2025
+% University of Maryland - College Park
+% Gemstone Team RUBIX
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Simple Monte-Carlo simulation with error on difference of input structure,
+% and spherical structure
+%runs all three angles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Can be easily changes to also model error in surface area or force by
+%changing where COEFF appears in [~,COEFF,~,~] see MAIN for docs
+rng(0,'twister');
+%get sphere coefficient for baseline
+[~, SphereCOEFF,~,~] = MAIN(1, 1.212, 2.01, 3.4, 0, 12.5, 1200.5, 7800.45, 100000000000, 1000000, 1000000, 1000000, 10000, 0, .93, 65, [], "");
+
+%INPUTS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%number of trials
+NumRuns = 3;
+%number of random measurements per trial
+NumIter = 100;
+%name of input file, including what folder it is in, EXCLUDING .wrl
+%extension
+%!!CAUTION!! using an existing filename WILL CORRUPT FILES !!CAUTION!!
+global inputfile
+inputfile = "DesignOne\Unnamed-CubeSat"; %might change to just overwrite in wrlrotator
+%!!CAUTION!! using an existing filename WILL CORRUPT FILES !!CAUTION!!
+
+%total degrees to be rotated upon, 90 goes from 0-90, 45 goes from 0-45,
+%etc.
+global totalDegrees degreeDelta
+
+totalDegrees = 360;
+degreeDelta = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+global fileNumber digits
+fileNumber = totalDegrees/degreeDelta
+digits = ceil(log10(fileNumber))
+fin = sprintf("%s.wrl", inputfile);
+fout = inputfile;
+% --- Get script folder ---
+scriptFolder = pwd;
+
+% --- Input and output files ---
+fin  = char(fullfile(scriptFolder, inputfile + '.wrl'));       % absolute path to input WRL
+fout = char(fullfile(scriptFolder, inputfile)); % absolute path to output WRL
+%creates files for input
+
+disp(fin)
+wrlrotator_mx(fin,fout,degreeDelta,totalDegrees);
+
+allResults = zeros(NumRuns, NumIter);
+allCoeffs  = zeros(NumRuns, NumIter);
+function [results,coeffs] = runWithPitchYaw(Iterations, actual)
+    global totalDegrees degreeDelta fileNumber inputfile digits
+    totalErr = 0;
+    results = zeros(1, Iterations);
+    coeffs  = zeros(1, Iterations); 
+    %random degree from 1-45, if you want to model different objects with
+    %less symmetry then a cube, increase to higher value (90, 180, 360)
+    pitch = randi([1 totalDegrees/degreeDelta],1,Iterations);
+    sideslip = randi([1 totalDegrees/degreeDelta],1,Iterations);
+    yaw = randi([1 fileNumber], 1, Iterations);
+    for i = 1:Iterations 
+        %iterate through files, choosing whichever mathches desired yaw
+        %change file names if you want to model a different shape.
+        fileName = sprintf("%s_%0*d.wrl",inputfile, digits, yaw(i)-1);
+        %fileName = sprintf("%s.wrl",inputfile);
+        [~, COEFF,~,~] = MAIN(4, 1.212, 2.01, 3.4, pitch(i) * degreeDelta, sideslip, 1200.5, 7800.45, 100000000000, 1000000, 1000000, 1000000, 10000, 0, .93, 65, [], fileName);
+        totalErr = abs(COEFF - actual) + totalErr;
+        results(i) = ((totalErr/i)/actual) * 100;
+        coeffs(i) = COEFF;
+    end
+
+
+end
+
+
+%plots results
+for k = 1:NumRuns
+    [allResults(k, :), allCoeffs(k, :)] = runWithPitchYaw(NumIter, SphereCOEFF);
+end
+
+
+
+meanResults = mean(allResults, 1);
+
+%% ==== FINAL SUMMARY VALUES ====
+
+% Average percent error across all trials and iterations
+avgErrorOverall = mean(allResults(:));
+meanCoeffs = mean(allCoeffs);
+% Average std dev of drag coefficient across iterations
+stdCoeffAcrossTrials = std(allCoeffs, 0, 1); 
+avgStdDevCoeff = mean(stdCoeffAcrossTrials);
+avgCoeff = mean(meanCoeffs);
+fprintf("\n==================== FINAL METRICS =======================\n");
+fprintf("Average percent error (across all trials & iterations): %.6f %%\n", avgErrorOverall);
+fprintf("Average Std Dev of drag coefficient across iterations: %.6f\n", avgStdDevCoeff);
+fprintf("Average Coefficient of Drag across iterations: %.6f\n", avgCoeff);
+
+fprintf("==========================================================\n\n");
+%% ==== ERROR PLOT ====
+figure;
+hold on; grid on; box on;
+x = 1:NumIter;
+% plot individual runs
+plot(x, allResults(1,:),'Color',[0.7 0.7 0.7],'LineWidth',1,'DisplayName','Individual Runs');
+
+for k = 2:NumRuns
+    plot(x, allResults(k,:), 'Color',[0.7 0.7 0.7], 'LineWidth',1,'HandleVisibility','off');
+end
+
+% plot mean
+plot(x, meanResults, 'r','LineWidth',2, 'DisplayName','Mean of Runs');
+
+
+legend('show')
+title('Error of Drag Coeffecient Comparing Spherical to Cubic');
+xlabel('Iterations');
+ylabel('Percent Error');
+
+
+
+%% ==== Drag Coefficient vs Sphere raw results ====
+runningMeanCoeffs = cumsum(allCoeffs, 2) ./ (1:NumIter);
+meanShapeCoeff = mean(runningMeanCoeffs, 1);
+sphereLine     = SphereCOEFF * ones(1, NumIter);
+figure;
+hold on; grid on; box on;
+x = 1:NumIter;
+
+% Plot each trial's shape coefficient in light gray
+
+% representative gray run
+plot(x, allCoeffs(1,:), 'Color',[0.8 0.8 0.8], 'LineWidth',1, 'DisplayName','Individual Shape Runs');
+
+% remaining gray runs hidden from legend
+for k = 2:NumRuns
+    plot(x, allCoeffs(k,:),'Color',[0.8 0.8 0.8], 'LineWidth',1, 'HandleVisibility','off');
+end
+
+plot(x, meanShapeCoeff,'b','LineWidth',2, 'DisplayName','Mean Shape Coefficient');
+
+plot(x, sphereLine, '--k','LineWidth',2, 'DisplayName','Sphere Coefficient');
+
+legend('show','Location','best')
+title('Drag Coefficient: Shape vs Sphere');
+xlabel('Iterations');
+ylabel('Drag Coefficient');
+
+
+
+%% ==== STD DEV AND MEAN ====
+stdErrorAcrossRuns  = std(allResults, 0, 1);              % std dev across trials
+stdErrorOfTheMean   = stdErrorAcrossRuns ./ sqrt(NumRuns); % standard error of mean
+figure;
+hold on; grid on; box on;
+x = 1:NumIter;
+
+% Mean percent error (already computed)
+plot(x, meanResults, 'b', 'LineWidth', 2);
+
+% Mean ± 1 std deviation (shaded band)
+fill([x, fliplr(x)], ...
+     [meanResults + stdErrorAcrossRuns, fliplr(meanResults - stdErrorAcrossRuns)], ...
+     [0.8 0.8 1.0], 'FaceAlpha', 0.3, 'EdgeColor', 'none');
+
+% Mean ± standard error (as thinner band or line)
+plot(x, meanResults + stdErrorOfTheMean, '--r', 'LineWidth', 1);
+plot(x, meanResults - stdErrorOfTheMean, '--r', 'LineWidth', 1);
+
+title('Percent Error: Mean, Std Dev, and Std Error Across Trials');
+xlabel('Iterations');
+ylabel('Percent Error');
+legend('Mean Percent Error', 'Mean \pm 1 Std Dev', 'Mean \pm Std Error', ...
+       'Location', 'best');
