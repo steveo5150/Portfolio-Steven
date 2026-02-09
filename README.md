@@ -7,3 +7,7 @@ This includes all code being utilized by my Gemstone team. All software and codi
 This is a game I am currently working on, currently designing most of the features.
 ## Prerequisites
 Projects have their own prerequisites, see their README files for further information
+
+
+### TODO
+VECTOR Satellite Calculations README
